@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>CRT demo</title>
+<meta charset='utf-8'>
+<style>
+#nzTerminal {
+    width:100%;
+    height:100%;
+    color:#0f0;
+    background-color:#000;
+    position:fixed;
+    top:0;
+    left:0;
+    margin:0 auto;
+    padding:10px;
+    overflow-x:hidden;
+    overflow-y:hidden;
+    text-shadow:1px 1px 2px #fff;
+    font-family: monospace;
+    font-size:16px;
+}
+</style>
+</head>
+<body>
+<div id='nzTerminal'></div>
+<script src='crt.js'></script>
+<script>
+var t = new nzTerminal();
+t.crtId = 'nzTerminal';
+t.sendMessage('// system power off---on--off');
+t.sendMessage('05-4-3-2-1-0');
+window.term = setInterval( t.render(), 150);
+
+</script>
+</body>
