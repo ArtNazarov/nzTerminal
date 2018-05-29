@@ -2,8 +2,22 @@ Array.prototype.insert = function (index, item) {
   this.splice(index, 0, item);
 };
 
+class ttyScreenChar{
+	constructor(){
+			this.tt = ' ';
+			this.tx = 'green';
+			this.bg = 'black';
+	}
+	asHtml(){
+		return '<span style="background-color:'+this.bg+';font-color:'+this.tx+';">'+this.tt+'</span>';
+	}
+}
+
 class nzTerminal {
-    constructor(){           
+    constructor(){      
+		this.demo = false;
+		this.timer = 0;
+	    this.emptyChar = new ttyScreenChar();
         this.crt = "";
         this.crtId = "";
         this.cursorId = 0;
@@ -12,6 +26,7 @@ class nzTerminal {
         this.carretY = 0;
         this.sigType = '';        
         this.screen = [];
+		this.hiddenPage = [];
         this.buffer = [];
         this.emptyScreen();
     }
@@ -19,34 +34,64 @@ class nzTerminal {
     emptyScreen(){
         console.log('call of empty screen');
         this.screen = [];
+		
         for (var i=0;i<25;i++){
             this.screen.push( [] );
+			this.hiddenPage.push( [ ] );
             for (var j=0;j<80;j++){
-                this.screen[i].push(' ');
+                
+				this.hiddenPage[i].push( this.emptyChar );
+				this.screen[i].push( this.hiddenPage[i][j].asHtml() );
             };
         };
-        console.log(this.screen);
+        //console.log(this.screen);
     }
     
     setChar(x,y,ch){
         if ((x < 80)&&(x>=0)&&(y<25)&&(y>=0))
         {
-        this.screen[y][x] = ch;
+		this.hiddenPage[y][x].tt = ch;
+		this.screen[y][x] = this.hiddenPage[y][x].asHtml();
         };
     }
     
-    getChar(x, y){
+    getCharRaw(x, y){
         var result = '';
         if ((x < 80)&&(x>=0)&&(y<25)&&(y>=0))
         {
-        result = this.screen[x][y];
+        result =  this.hiddenPage[y][x].tt;
+        };
+        return result;
+    }
+	
+	getChar(x, y){
+        var result = '';
+        if ((x < 80)&&(x>=0)&&(y<25)&&(y>=0))
+        {
+        result =  this.hiddenPage[y][x].asHtml();
         };
         return result;
     }
     
     eraseChar(x, y){
-        this.screen[y][x] = '&nbsp;';
+        var temp = this.hiddenPage[y][x];
+		this.hiddenPage[y][x] = new ttyScreenChar();
+		temp = null;
+		this.hiddenPage[y][x].tx = this.emptyChar.tt;
+		this.screen[y][x] = this.hiddenPage[y][x].asHtml();
     }
+	
+	setColor(x, y, background, text){
+		
+		var temp = this.hiddenPage[y][x];
+		var Litera = new ttyScreenChar();
+		this.hiddenPage[y][x] = Litera;
+		temp = null;
+		
+		this.hiddenPage[y][x].tx = text;
+		this.hiddenPage[y][x].bg = background;
+		this.screen[y][x] = this.hiddenPage[y][x].asHtml();
+	}
     
     pushB(ch){
         this.buffer.push(ch);
@@ -152,6 +197,7 @@ class nzTerminal {
             this.crt = this.crt + this.screen[i].join('') + "<br/>";
         };        
         this.setChar(this.carretX+1, this.carretY, temp);
+		console.log(this.crt);
     }
     
     analyseChar(ch){
@@ -187,6 +233,10 @@ class nzTerminal {
     render(){           
     var q = this;
     return function(){
+		q.timer+=150;
+		if (this.demo){
+		if (q.timer>10000) { clearInterval(window.term); }
+		};
         var ch = q.readBuffer(); // read char from buffer
         //console.log('readed '+ch);
         q.analyseChar(ch);       

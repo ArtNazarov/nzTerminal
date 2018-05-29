@@ -26,10 +26,16 @@
 <script src='crt.js'></script>
 <script>
 var t = new nzTerminal();
+t.demo = false;
 t.crtId = 'nzTerminal';
-t.sendMessage('// Load NZ Terminal#');
+t.sendMessage('1234#');
+t.sendMessage('Loading#');
+var Colors = ['red', 'green', 'yellow', 'blue'];
+for (var x = 0;x<5;x++){t.setColor(x, 0, Colors[x], 'white' );}
 t.sendMessage('05-4-3-2-1-0');
+t.sendMessage('#');
 window.term = setInterval( t.render(), 150);
+
 t.attachInput();
 </script>
 </body>
