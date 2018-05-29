@@ -32,7 +32,7 @@ class nzTerminal {
     }
     
     emptyScreen(){
-        console.log('call of empty screen');
+        //console.log('call of empty screen');
         this.screen = [];
 		
         for (var i=0;i<25;i++){
@@ -197,7 +197,7 @@ class nzTerminal {
             this.crt = this.crt + this.screen[i].join('') + "<br/>";
         };        
         this.setChar(this.carretX+1, this.carretY, temp);
-		console.log(this.crt);
+		//console.log(this.crt);
     }
     
     analyseChar(ch){
@@ -215,20 +215,35 @@ class nzTerminal {
         }
     }
 	
-	// event.type должен быть keypress
-	getChar(event) {
-  if (event.which == null) { // IE
-    if (event.keyCode < 32) return null; // спец. символ
-    return String.fromCharCode(event.keyCode)
-  }
+	crossBrowserGetCh(event) {
+		var result = '';
+  if (event.keyCode >= 32) { result = String.fromCharCode(event.keyCode)}
+  else if (event.which > 32) { result = String.fromCharCode(event.which);}; 
+  
 
-  if (event.which != 0 && event.charCode != 0) { // все кроме IE
-    if (event.which < 32) return null; // спец. символ
-    return String.fromCharCode(event.which); // остальные
-  }
-
-  return null; // спец. символ
+  return result;
 }
+	
+	// event.type должен быть keypress
+	getChar(event){
+	
+	var result = '';
+
+    var key = event.key || event.keyCode;
+
+    if (key === 'Backspace' || key === 0x8) {
+         result = '-';
+    } else if (key === 'Enter' || key === 13) {
+         result = '#';
+    } else { 
+		result = this.crossBrowserGetCh(event); 
+		};
+	console.log(result);
+	return result;
+
+  }
+
+ 
     
     render(){           
     var q = this;
@@ -251,7 +266,8 @@ class nzTerminal {
 	
 	attachInput(){
 		var q = this;
-		document.body.addEventListener("keypress", function(event) {
+		document.body.addEventListener("keyup", function(event) {
+				
 				q.pushB(q.getChar(event));
 		});
 	}
