@@ -53,7 +53,7 @@ class nzTerminal {
     }
     
     pushC(ch){ 
-        console.log('pushed '+ch);
+        //console.log('pushed '+ch);
         this.setChar(this.carretX, this.carretY, ch);
         this.carretX++;
         if (this.carretX > 80) {
@@ -92,7 +92,7 @@ class nzTerminal {
         var ch = this.buffer.shift(); 
         if (ch === '#')
         {        
-            console.log('set sendEnter!');
+            //console.log('set sendEnter!');
             this.sigType = 'enter';
             this.signal = 1;
         }                       
@@ -119,12 +119,12 @@ class nzTerminal {
     onEnter(ch){
          if (this.sigType === 'enter'){
          this.processEnter();
-         console.log('signal catched!');
+         //console.log('signal catched!');
         };
     }
     
     processSignals(ch){
-        console.log('process signals');
+       // console.log('process signals');
         if (this.signal === 0) {return null;};
         if (this.sigType === '') {return null;};
         // just add section
@@ -168,18 +168,42 @@ class nzTerminal {
             console.log('interruption...');
         }
     }
+	
+	// event.type должен быть keypress
+	getChar(event) {
+  if (event.which == null) { // IE
+    if (event.keyCode < 32) return null; // спец. символ
+    return String.fromCharCode(event.keyCode)
+  }
+
+  if (event.which != 0 && event.charCode != 0) { // все кроме IE
+    if (event.which < 32) return null; // спец. символ
+    return String.fromCharCode(event.which); // остальные
+  }
+
+  return null; // спец. символ
+}
     
     render(){           
     var q = this;
     return function(){
         var ch = q.readBuffer(); // read char from buffer
-        console.log('readed '+ch);
+        //console.log('readed '+ch);
         q.analyseChar(ch);       
         q.processSignals(ch); // have we any signals in the buffer?
         q.onAddChar(ch);  // add char if it is not control                          
         q.buildCrt(); // get screen presentation
+		
+		
         document.getElementById(q.crtId).innerHTML = q.crt;    
     }
     }
+	
+	attachInput(){
+		var q = this;
+		document.body.addEventListener("keypress", function(event) {
+				q.pushB(q.getChar(event));
+		});
+	}
 
 }

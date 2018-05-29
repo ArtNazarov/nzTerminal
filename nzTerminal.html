@@ -27,9 +27,9 @@
 <script>
 var t = new nzTerminal();
 t.crtId = 'nzTerminal';
-t.sendMessage('// system power off---on--off');
+t.sendMessage('// Load NZ Terminal#');
 t.sendMessage('05-4-3-2-1-0');
 window.term = setInterval( t.render(), 150);
-
+t.attachInput();
 </script>
 </body>
